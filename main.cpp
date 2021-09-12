@@ -111,20 +111,30 @@ std::string process(std::string w, bool justTranslate, char &endwith) {
 
     std::string res;
 
+    auto isCaseChanged = [](char prev, char c) { 
+        if (!std::isalpha(prev) || !std::isalpha(c)) return false;
+        return (std::islower(prev) && !std::islower(c)) || (!std::islower(prev) && std::islower(c)); 
+    };
+
+    bool justchanged = false;
     for (size_t i = 0; i < w.length(); i++) {
         if (i == 0 || i == w.length() - 1)
-            res.push_back(w[i]);
+            res.push_back(std::tolower(w[i]));
         else if (std::isspace(w[i - 1]))
             res.push_back(w[i]);
-        else if (std::islower(w[i - 1]) && !std::islower(w[i]) && std::isalpha(w[i])) {
-            res.push_back('_');
-            if (std::islower(w[i + 1])) {
+        else if (std::isalpha(w[i])) {
+            if (isCaseChanged(w[i - 1], w[i])) {
+                if (!justchanged) res.push_back('_');
                 res.push_back(std::tolower(w[i]));
+                justchanged = true;
             } else {
-                res.push_back(w[i]);
+                res.push_back(std::tolower(w[i]));
+                justchanged = false;
             }
-        } else
+        } else {
             res.push_back(w[i]);
+            justchanged = false;
+        }
     }
     return res;
 }
